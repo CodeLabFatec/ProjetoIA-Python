@@ -1,5 +1,5 @@
 from app import db
-from datetime import datetime
+from datetime import datetime, date
 
 class informacoesEntity(db.Model):
 
@@ -9,3 +9,4 @@ class informacoesEntity(db.Model):
     id = db.Column(db.BigInteger, primary_key=True)
     horario_entrada = db.Column(db.DateTime, default=datetime.now)
     horario_saida = db.Column(db.DateTime, default=datetime.now)
+    data = db.Column(db.Date, default=date.today)

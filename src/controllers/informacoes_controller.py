@@ -6,7 +6,7 @@ from entities.dados_ia import informacoesEntity
 from log import logging
 from app import db
 
-class informacoesController:
+class InformacoesController:
 
     def listar():
         response = informacoesRepository.get_all()
