@@ -15,3 +15,25 @@ class informacoesRepository:
         db.session.flush()
         db.session.refresh(informacoes)
         return informacoes.id
+
+    def get_informacoes_for_export(data_inicial : str, data_final : str) -> list[dict]:
+
+        query_informacoes = db.session.query(
+            informacoesEntity.id,
+            informacoesEntity.horario_entrada,
+            informacoesEntity.horario_saida,
+            informacoesEntity.data,
+        ).filter(
+            informacoesEntity.data.between(data_inicial, data_final)
+        )
+
+        resultado_filtragem = {
+            "informacoes":[
+                {
+                    'id': value.id,
+                    'horario_entrada': value.horario_entrada,
+                    'horario_saida': value.horario_saida,
+                } for value in query_informacoes
+            ]
+        }
+        return resultado_filtragem
