@@ -1,9 +1,13 @@
 import cv2
 import pandas as pd
 import numpy as np
+
+from datetime import datetime
 from ultralytics import YOLO
 
 from tracker import *
+from create_df import create_dataframe
+
 
 
 model=YOLO('yolov8s.pt')
@@ -21,25 +25,28 @@ def RGB(event, x, y, flags, param):
 cv2.namedWindow('RGB')
 cv2.setMouseCallback('RGB', RGB)
 
-cap = cv2.VideoCapture('peoplecount1.mp4')
+cap=cv2.VideoCapture('peoplecount1.mp4')
 
 
 with open("../data/coco.txt", "r") as arquivo:
-    
     conteudo = arquivo.read()
 class_list = conteudo.split("\n")
 
+
 count=0
 tracker = Tracker()
-
-list = []
-bbox_id = tracker.update(list)
-
+lista_id = []
+bbox_id = tracker.update(lista_id)
 entering = {}
 ppl_entering = set()
 
 exiting = {}
 ppl_exiting = set()
+
+timestamps = {
+    1: {'enter': datetime.now(), 'exit': datetime.now()},
+    2: {'enter': datetime.now(), 'exit': datetime.now()}
+}
 
 while True:    
     ret,frame = cap.read()
@@ -52,8 +59,7 @@ while True:
     results=model.predict(frame)
     a=results[0].boxes.data
     px=pd.DataFrame(a).astype("float")
-    list=[]
-    list.clear()
+    lista_id.clear()
              
     for index,row in px.iterrows():
         x1=int(row[0])
@@ -64,8 +70,8 @@ while True:
         c=class_list[d]
         
         if 'person' in c:
-           list.append([x1, y1, x2, y2])
-    bbox_id = tracker.update(list)
+           lista_id.append([x1, y1, x2, y2])
+    bbox_id = tracker.update(lista_id)
     for i, bbox in enumerate(bbox_id):
         x3, y3, x4, y4, id = bbox
         results = cv2.pointPolygonTest(np.array(area2, np.int32), (x4, y4), False)
@@ -79,6 +85,7 @@ while True:
                 cv2.circle(frame, (x4, y4), 4, (255, 0, 255), -1)
                 cv2.putText(frame, str(id), (x3, y3), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
                 ppl_entering.add(id)
+                timestamps[id] = {'enter': datetime.now()} #registra a entrada
       
         
         results_exiting = cv2.pointPolygonTest(np.array(area1, np.int32), (x4, y4), False)
@@ -94,6 +101,7 @@ while True:
                 cv2.circle(frame, (x4, y4), 4, (255, 0, 255), -1)
                 cv2.putText(frame, str(id), (x3, y3), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
                 ppl_exiting.add(id)
+                timestamps[id] = {'exit': datetime.now()} #registra a saída
 
     
     cv2.polylines(frame,[np.array(area1,np.int32)],True,(255,0,0),2)
@@ -116,6 +124,9 @@ while True:
     cv2.imshow("RGB", frame)
     if cv2.waitKey(1)&0xFF==27:
         break
+
+df = create_dataframe(timestamps)
+print(df)
 
 cap.release()
 cv2.destroyAllWindows()
