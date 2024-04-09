@@ -7,6 +7,7 @@ from ultralytics import YOLO
 
 from tracker import *
 from create_df import create_dataframe
+from send_data import send_data
 
 
 
@@ -43,11 +44,7 @@ ppl_entering = set()
 exiting = {}
 ppl_exiting = set()
 
-timestamps = {
-    1: {'enter': datetime.now(), 'exit': datetime.now()},
-    2: {'enter': datetime.now(), 'exit': datetime.now()}
-}
-
+timestamps = {}
 while True:    
     ret,frame = cap.read()
     if not ret:
@@ -127,6 +124,7 @@ while True:
 
 df = create_dataframe(timestamps)
 print(df)
+send_data(df)
 
 cap.release()
 cv2.destroyAllWindows()
