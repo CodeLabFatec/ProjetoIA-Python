@@ -1,12 +1,13 @@
 from app import db
-from datetime import datetime, date
+from datetime import datetime, date, time
 
 class informacoesEntity(db.Model):
 
-    __tablename__ = 'informacoes'
-    __table_args__ = {'schema':'teste'}
+    __tablename__ = 'registros'
+    __table_args__ = {'schema':'api_6sem'}
 
     id = db.Column(db.BigInteger, primary_key=True)
-    horario_entrada = db.Column(db.DateTime, default=datetime.now)
-    horario_saida = db.Column(db.DateTime, default=datetime.now)
-    data = db.Column(db.Date, default=date.today)
+    data_entrada = db.Column(db.Date)
+    hora_entrada = db.Column(db.Time)
+    data_saida = db.Column(db.Date)
+    hora_saida = db.Column(db.Time)
