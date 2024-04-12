@@ -1,4 +1,3 @@
-from app import db
 from log import logging
 
 from flask import request
@@ -9,12 +8,8 @@ from models.services.exportar_relatorio import ExportarRelatorio
 
 class RelatorioController:
 
-    def download_relatorio():
-        try:
-            body = request.get_json()
-            return ExportarRelatorio.export_relatorio(body['date_start'], body['date_end'])
-
-        except Exception:
-            logging.exception("Erro no Download")
-            db.session.rollback()
-            return {'Info':'Erro Interno'}, status.HTTP_500_INTERNAL_SERVER_ERROR
+    def download_relatorio_7_dias():
+        return ExportarRelatorio.export_relatorio_7_dias()
+    
+    def download_relatorio_14_dias():
+        return ExportarRelatorio.export_relatorio_14_dias()
