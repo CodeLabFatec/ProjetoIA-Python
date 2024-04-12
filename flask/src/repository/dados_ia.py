@@ -2,6 +2,7 @@ from models.dto.informacoes import informacoesDTO
 from entities.dados_ia import informacoesEntity
 
 from app import db
+from datetime import *
 
 class informacoesRepository:
     
@@ -16,24 +17,39 @@ class informacoesRepository:
         db.session.refresh(informacoes)
         return informacoes.id
 
-    def get_informacoes_for_export(data_inicial : str, data_final : str) -> list[dict]:
+    def get_informacoes_for_export():
+
+        data_atual = datetime.now()
+        data_sete_dias_atras = data_atual - timedelta(days=7)
 
         query_informacoes = db.session.query(
             informacoesEntity.id,
-            informacoesEntity.horario_entrada,
-            informacoesEntity.horario_saida,
-            informacoesEntity.data,
+            informacoesEntity.data_entrada,
+            informacoesEntity.data_saida,
+            informacoesEntity.hora_entrada,
+            informacoesEntity.hora_saida
         ).filter(
-            informacoesEntity.data.between(data_inicial, data_final)
+            informacoesEntity.data_entrada >= data_sete_dias_atras
+        ).order_by(
+            informacoesEntity.data_entrada
         )
 
-        resultado_filtragem = {
-            "informacoes":[
+        resultado_filtragem = [
                 {
-                    'id': value.id,
-                    'horario_entrada': value.horario_entrada,
-                    'horario_saida': value.horario_saida,
+                    'data_entrada': value.data_entrada.strftime("%Y-%m-%d")
                 } for value in query_informacoes
             ]
-        }
+
         return resultado_filtragem
+    
+    def calcula_entrada_pessoas():
+        
+        datas_filtradas = informacoesRepository.get_informacoes_for_export()
+        contagem_pessoas = {'datas':{}}
+
+        for data in datas_filtradas:
+            if data['data_entrada'] not in contagem_pessoas['datas']:
+                contagem_pessoas['datas'][data['data_entrada']] = {'numero_pessoas' : 0, 'data_entrada' : data['data_entrada']}
+            contagem_pessoas['datas'][data['data_entrada']]['numero_pessoas'] += 1
+
+        return list(contagem_pessoas['datas'].values())
