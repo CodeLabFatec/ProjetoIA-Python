@@ -28,7 +28,8 @@ class ExportarRelatorio:
 
     def export_relatorio_7_dias(template_filename):
 
-        template_path = os.path.join('C:/Users/cardo/Downloads/', template_filename)
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        template_path = os.path.abspath(os.path.join(current_dir, '..', '..', '..', 'assets', template_filename))
 
         wb = load_workbook(template_path)
         sheet = wb.active
@@ -71,7 +72,8 @@ class ExportarRelatorio:
 
     def export_relatorio_14_dias(template_filename):
 
-        template_path = os.path.join('C:/Users/cardo/Downloads/', template_filename)
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        template_path = os.path.abspath(os.path.join(current_dir, '..', '..', '..', 'assets', template_filename))
 
         wb = load_workbook(template_path)
         sheet = wb.active
