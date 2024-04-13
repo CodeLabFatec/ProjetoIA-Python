@@ -3,28 +3,57 @@ import time
 from datetime import *
 from flask import send_file
 from openpyxl import Workbook
+from openpyxl import load_workbook
+import os
 
 from repository.dados_ia import informacoesRepository
 
 class ExportarRelatorio:
 
-    def export_relatorio_7_dias():
+    def traduzir_dia_da_semana(dia_da_semana):
+        # Dicionário de mapeamento dos dias da semana de inglês para português
+        dias_da_semana = {
+            "Monday": "Segunda-feira",
+            "Tuesday": "Terça-feira",
+            "Wednesday": "Quarta-feira",
+            "Thursday": "Quinta-feira",
+            "Friday": "Sexta-feira",
+            "Saturday": "Sábado",
+            "Sunday": "Domingo"
+        }
 
-        wb = Workbook()
+        # Retorna a tradução do dia da semana se estiver no dicionário, caso contrário, retorna o próprio dia
+        return dias_da_semana.get(dia_da_semana, dia_da_semana)
 
+
+    def export_relatorio_7_dias(template_filename):
+
+        template_path = os.path.join('C:/Users/cardo/Downloads/', template_filename)
+
+        wb = load_workbook(template_path)
         sheet = wb.active
-        sheet.title = "Relatorio"
 
         data = informacoesRepository.calcula_entrada_pessoas()
+        data_inicial = datetime.now().date()
+        while data_inicial.strftime("%A") != "Monday":
+            data_inicial -= timedelta(days=1)
 
         for i, entry in enumerate(data[:7], start=3):
-            sheet[f"C{i}"] = entry["data_entrada"]
+            data_entrada_formatada = datetime.strptime(entry["data_entrada"], "%Y-%m-%d").strftime("%d/%m/%Y") if entry["data_entrada"] else ""
+            sheet[f"C{i}"] = data_entrada_formatada
             sheet[f"D{i}"] = entry["numero_pessoas"]
+
+            if entry["data_entrada"]:
+                dia_da_semana = (data_inicial + timedelta(days=i-3)).strftime("%A")
+                sheet[f"B{i}"] = ExportarRelatorio.traduzir_dia_da_semana(dia_da_semana)
+            else:
+                sheet[f"B{i}"] = ""
 
         if len(data) < 7:
             for i in range(len(data) + 3, 10):
                 sheet[f"C{i}"] = ""
                 sheet[f"D{i}"] = ""
+                sheet[f"B{i}"] = ""
 
         output = io.BytesIO()
         wb.save(output)
@@ -39,25 +68,35 @@ class ExportarRelatorio:
         )
         response.headers['Content-Disposition'] = f'attachment; filename={file_name}'
         return response
-    
 
-    def export_relatorio_14_dias():
+    def export_relatorio_14_dias(template_filename):
 
-        wb = Workbook()
+        template_path = os.path.join('C:/Users/cardo/Downloads/', template_filename)
 
+        wb = load_workbook(template_path)
         sheet = wb.active
-        sheet.title = "Relatorio"
 
         data = informacoesRepository.calcula_entrada_pessoas()
+        data_inicial = datetime.now().date()
+        while data_inicial.strftime("%A") != "Monday":
+            data_inicial -= timedelta(days=1)
 
         for i, entry in enumerate(data[:14], start=3):
-            sheet[f"C{i}"] = entry["data_entrada"]
+            data_entrada_formatada = datetime.strptime(entry["data_entrada"], "%Y-%m-%d").strftime("%d/%m/%Y") if entry["data_entrada"] else ""
+            sheet[f"C{i}"] = data_entrada_formatada
             sheet[f"D{i}"] = entry["numero_pessoas"]
 
+            if entry["data_entrada"]:
+                dia_da_semana = (data_inicial + timedelta(days=i-3)).strftime("%A")
+                sheet[f"B{i}"] = ExportarRelatorio.traduzir_dia_da_semana(dia_da_semana)
+            else:
+                sheet[f"B{i}"] = ""
+
         if len(data) < 14:
-            for i in range(len(data) + 3, 10):
+            for i in range(len(data) + 3, 17):
                 sheet[f"C{i}"] = ""
                 sheet[f"D{i}"] = ""
+                sheet[f"B{i}"] = ""
 
         output = io.BytesIO()
         wb.save(output)
