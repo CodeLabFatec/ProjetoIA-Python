@@ -10,5 +10,12 @@ infos_bp.route('/info',
 
 
 relatorio_bp = Blueprint('relatorio_bp', __name__)
-relatorio_bp.route('/report',
-               methods=['POST'])(RelatorioController.download_relatorio)
+relatorio_bp.route('/report-7-days',
+               methods=['GET'])(RelatorioController.download_relatorio_7_dias)
+relatorio_bp.route('/report-14-days',
+               methods=['GET'])(RelatorioController.download_relatorio_14_dias)
+
+
+def add_custom_headers(response):
+    response.headers["Access-Control-Expose-Headers"] = "Content-Disposition"
+    return response
