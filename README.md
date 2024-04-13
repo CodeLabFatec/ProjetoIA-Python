@@ -19,6 +19,8 @@ Esse repositório contém os programas desenvolvidos em Python para o Projeto IA
 
 <br />
 
+> Estratégia de branches e commits
+
 As branches e commits desse projeto seguem o seguinte padrão estabelecido pelo [Conventional Commits](https://www.conventionalcommits.org/pt-br/v1.0.0/) e com exemplos de utilização detalhados [neste repositório](https://github.com/iuricode/padroes-de-commits).
 
 <br>
