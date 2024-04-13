@@ -1,0 +1,7 @@
+{
+    "python.analysis.autoImportCompletions": false,
+    "python.analysis.extraPaths": [
+        "./ia/src",
+        "./flask/src"
+    ]
+}
