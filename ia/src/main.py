@@ -1,16 +1,17 @@
+from datetime import datetime
+from ultralytics import YOLO
 import cv2
 import pandas as pd
 import numpy as np
-from ultralytics import YOLO
 
 from tracker import *
-
+from create_df import create_dataframe
+from send_data import send_data
 
 model=YOLO('yolov8s.pt')
 
-
-area1=[(312,388),(289,390),(474,469),(497,462)]
-area2=[(279,392),(250,397),(423,477),(454,469)]
+area1=[(436,370),(413,372),(627,443),(650,438)]
+area2=[(389,374),(360,379),(576,451),(607,443)]
 
 def RGB(event, x, y, flags, param):
     if event == cv2.EVENT_MOUSEMOVE :  
@@ -21,26 +22,23 @@ def RGB(event, x, y, flags, param):
 cv2.namedWindow('RGB')
 cv2.setMouseCallback('RGB', RGB)
 
-cap = cv2.VideoCapture('peoplecount1.mp4')
+cap=cv2.VideoCapture("video-lado.mp4")
 
-
-with open("../data/coco.txt", "r") as arquivo:
-    
-    conteudo = arquivo.read()
-class_list = conteudo.split("\n")
+class_list = model.names
 
 count=0
 tracker = Tracker()
-
-list = []
-bbox_id = tracker.update(list)
-
+lista_id = []
+bbox_id = tracker.update(lista_id)
 entering = {}
 ppl_entering = set()
+ppl_entering2 = set()
 
 exiting = {}
 ppl_exiting = set()
+ppl_exiting2 = set()
 
+timestamps = {}
 while True:    
     ret,frame = cap.read()
     if not ret:
@@ -52,8 +50,7 @@ while True:
     results=model.predict(frame)
     a=results[0].boxes.data
     px=pd.DataFrame(a).astype("float")
-    list=[]
-    list.clear()
+    lista_id.clear()
              
     for index,row in px.iterrows():
         x1=int(row[0])
@@ -64,8 +61,8 @@ while True:
         c=class_list[d]
         
         if 'person' in c:
-           list.append([x1, y1, x2, y2])
-    bbox_id = tracker.update(list)
+           lista_id.append([x1, y1, x2, y2])
+    bbox_id = tracker.update(lista_id)
     for i, bbox in enumerate(bbox_id):
         x3, y3, x4, y4, id = bbox
         results = cv2.pointPolygonTest(np.array(area2, np.int32), (x4, y4), False)
@@ -79,6 +76,14 @@ while True:
                 cv2.circle(frame, (x4, y4), 4, (255, 0, 255), -1)
                 cv2.putText(frame, str(id), (x3, y3), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
                 ppl_entering.add(id)
+                ppl_entering2.add(id)
+                timestamps[id] = {'enter': datetime.now()}
+                df = create_dataframe(timestamps)
+                send_data(df)
+                entering.clear()
+                ppl_entering.clear()
+                timestamps.clear()
+
       
         
         results_exiting = cv2.pointPolygonTest(np.array(area1, np.int32), (x4, y4), False)
@@ -94,17 +99,22 @@ while True:
                 cv2.circle(frame, (x4, y4), 4, (255, 0, 255), -1)
                 cv2.putText(frame, str(id), (x3, y3), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
                 ppl_exiting.add(id)
+                ppl_exiting2.add(id)
+                timestamps[id] = {'exit': datetime.now()}
+                df = create_dataframe(timestamps)
+                send_data(df)
+                exiting.clear()
+                ppl_exiting.clear()
+                timestamps.clear()
+
 
     
     cv2.polylines(frame,[np.array(area1,np.int32)],True,(255,0,0),2)
-    cv2.putText(frame,str('1'),(504,471),cv2.FONT_HERSHEY_COMPLEX,(0.5),(0,0,0),1)
-
     cv2.polylines(frame,[np.array(area2,np.int32)],True,(255,0,0),2)
-    cv2.putText(frame,str('2'),(466,485),cv2.FONT_HERSHEY_COMPLEX,(0.5),(0,0,0),1)
 
-    entrou = (len(ppl_entering))
-    saiu = (len(ppl_exiting))
-    dentro = (len(ppl_entering)) - (len(ppl_exiting))
+    entrou = (len(ppl_entering2))
+    saiu = (len(ppl_exiting2))
+    dentro = (len(ppl_entering2)) - (len(ppl_exiting2))
     limite = 3
 
     cv2.putText(frame, str(entrou), (60, 80), cv2.FONT_HERSHEY_COMPLEX, 0.7, (0, 255, 0), 2)
@@ -114,7 +124,7 @@ while True:
         cv2.putText(frame, str("LIMITE ATINGIDO"), (40, 260), cv2.FONT_HERSHEY_COMPLEX, 0.7, (0, 0, 255), 2)
 
     cv2.imshow("RGB", frame)
-    if cv2.waitKey(1)&0xFF==27:
+    if cv2.waitKey(2)&0xFF==27:
         break
 
 cap.release()
