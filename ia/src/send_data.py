@@ -2,7 +2,7 @@ import pyodbc
 
 def send_data(df):
 
-    conn = pyodbc.connect('DRIVER={MySQL ODBC 8.3 Unicode Driver}; Database=db_ia_python; UID=root; PWD=fatec') #testei com meu bd local dps mudar para o db do backend
+    conn = pyodbc.connect('DRIVER={MySQL ODBC 8.3 Unicode Driver}; Database=api_6sem; UID=root; PWD=fatec')
 
     cursor = conn.cursor()
 
@@ -10,6 +10,7 @@ def send_data(df):
 
     for index, linha in df.iterrows():
         
-        cursor.execute("Insert into entrada_saida(ids,Data_entrada, Hora_entrada, Data_saida, Hora_saida)values(?, ?, ?, ?, ?)", linha.ID, linha.Data_entrada, linha.Hora_entrada, linha.Data_saida, linha.Hora_saida)
+        cursor.execute("Insert into registros(Data_entrada, Hora_entrada, Data_saida, Hora_saida)values(?, ?, ?, ?)",
+                       linha.Data_entrada, linha.Hora_entrada, linha.Data_saida, linha.Hora_saida)
     cursor.commit()
     cursor.close()

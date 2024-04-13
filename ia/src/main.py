@@ -32,9 +32,11 @@ lista_id = []
 bbox_id = tracker.update(lista_id)
 entering = {}
 ppl_entering = set()
+ppl_entering2 = set()
 
 exiting = {}
 ppl_exiting = set()
+ppl_exiting2 = set()
 
 timestamps = {}
 while True:    
@@ -74,8 +76,14 @@ while True:
                 cv2.circle(frame, (x4, y4), 4, (255, 0, 255), -1)
                 cv2.putText(frame, str(id), (x3, y3), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
                 ppl_entering.add(id)
-                #chamar a função de salvar entrada
-                timestamps[id] = {'enter': datetime.now()} #registra a entrada
+                ppl_entering2.add(id)
+                timestamps[id] = {'enter': datetime.now()}
+                df = create_dataframe(timestamps)
+                send_data(df)
+                entering.clear()
+                ppl_entering.clear()
+                timestamps.clear()
+
       
         
         results_exiting = cv2.pointPolygonTest(np.array(area1, np.int32), (x4, y4), False)
@@ -91,16 +99,22 @@ while True:
                 cv2.circle(frame, (x4, y4), 4, (255, 0, 255), -1)
                 cv2.putText(frame, str(id), (x3, y3), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
                 ppl_exiting.add(id)
-                #chamar a funcção de salvar saída
-                timestamps[id] = {'exit': datetime.now()} #registra a saída
+                ppl_exiting2.add(id)
+                timestamps[id] = {'exit': datetime.now()}
+                df = create_dataframe(timestamps)
+                send_data(df)
+                exiting.clear()
+                ppl_exiting.clear()
+                timestamps.clear()
+
 
     
     cv2.polylines(frame,[np.array(area1,np.int32)],True,(255,0,0),2)
     cv2.polylines(frame,[np.array(area2,np.int32)],True,(255,0,0),2)
 
-    entrou = (len(ppl_entering))
-    saiu = (len(ppl_exiting))
-    dentro = (len(ppl_entering)) - (len(ppl_exiting))
+    entrou = (len(ppl_entering2))
+    saiu = (len(ppl_exiting2))
+    dentro = (len(ppl_entering2)) - (len(ppl_exiting2))
     limite = 3
 
     cv2.putText(frame, str(entrou), (60, 80), cv2.FONT_HERSHEY_COMPLEX, 0.7, (0, 255, 0), 2)
@@ -112,10 +126,6 @@ while True:
     cv2.imshow("RGB", frame)
     if cv2.waitKey(2)&0xFF==27:
         break
-
-# df = create_dataframe(timestamps)
-# print(df)
-# send_data(df)
 
 cap.release()
 cv2.destroyAllWindows()
