@@ -10,7 +10,7 @@ def send_data(df):
 
     for index, linha in df.iterrows():
         
-        cursor.execute("Insert into registros(Data_entrada, Hora_entrada, Data_saida, Hora_saida)values(?, ?, ?, ?)",
-                       linha.Data_entrada, linha.Hora_entrada, linha.Data_saida, linha.Hora_saida)
+        cursor.execute("Insert into entrada_saida(Data_entrada, Hora_entrada, Data_saida, Hora_saida, Redzone_number)values(?, ?, ?, ?, ?)",
+                       linha.Data_entrada, linha.Hora_entrada, linha.Data_saida, linha.Hora_saida, linha.Redzone_number)
     cursor.commit()
     cursor.close()
