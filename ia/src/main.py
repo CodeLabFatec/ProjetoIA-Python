@@ -14,12 +14,16 @@ cap = None
 area1 = None
 area2 = None
 
+
 def redzone(redzone_number):
     global cap, area1, area2 
 
     redzones = {
-        305: {"video_path": "video-lado.mp4", "area1": [(436, 370), (413, 372), (627, 443), (650, 438)], "area2": [(389, 374), (360, 379), (576, 451), (607, 443)]},
-        307: {"video_path": "video.mp4", "area1": [(436, 370), (413, 372), (627, 443), (650, 438)], "area2": [(389, 374), (360, 379), (576, 451), (607, 443)]}
+        305: {"video_path": "video-lado.mp4", "area1": [(436, 370), (413, 372), (627, 443), (650, 438)],
+              "area2": [(389, 374), (360, 379), (576, 451), (607, 443)]},
+              
+        307: {"video_path": "video.mp4", "area1": [(436, 370), (413, 372), (627, 443), (650, 438)],
+              "area2": [(389, 374), (360, 379), (576, 451), (607, 443)]}
     }
     
     if redzone_number not in redzones:
@@ -32,6 +36,7 @@ def redzone(redzone_number):
     area2 = redzone_data["area2"]
 
     cap = cv2.VideoCapture(video_path)
+    return redzone_number
 
 def RGB(event, x, y, flags, param):
     if event == cv2.EVENT_MOUSEMOVE :  
@@ -42,7 +47,7 @@ def RGB(event, x, y, flags, param):
 cv2.namedWindow('RGB')
 cv2.setMouseCallback('RGB', RGB)
 
-redzone(307)
+redzone_number = redzone(307)
 
 class_list = model.names
 
@@ -98,7 +103,7 @@ while True:
                 ppl_entering.add(id)
                 ppl_entering2.add(id)
                 timestamps[id] = {'enter': datetime.now()}
-                df = create_dataframe(timestamps)
+                df = create_dataframe(timestamps, redzone_number)
                 send_data(df)
                 entering.clear()
                 ppl_entering.clear()
@@ -121,7 +126,7 @@ while True:
                 ppl_exiting.add(id)
                 ppl_exiting2.add(id)
                 timestamps[id] = {'exit': datetime.now()}
-                df = create_dataframe(timestamps)
+                df = create_dataframe(timestamps, redzone_number)
                 send_data(df)
                 exiting.clear()
                 ppl_exiting.clear()
@@ -144,7 +149,7 @@ while True:
         cv2.putText(frame, str("LIMITE ATINGIDO"), (40, 260), cv2.FONT_HERSHEY_COMPLEX, 0.7, (0, 0, 255), 2)
 
     cv2.imshow("RGB", frame)
-    if cv2.waitKey(2)&0xFF==27:
+    if cv2.waitKey(4)&0xFF==27:
         break
 
 cap.release()
