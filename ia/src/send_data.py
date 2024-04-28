@@ -1,16 +1,25 @@
-import pyodbc 
+import sqlalchemy 
+import pandas as pd
 
-def send_data(df):
+user = 'root'
+password = 'fatec'
+host = 'localhost'
+database = 'api_6sem'
 
-    conn = pyodbc.connect('DRIVER={MySQL ODBC 8.3 Unicode Driver}; Database=api_6sem; UID=root; PWD=fatec')
+connection_string = f"mysql+mysqlconnector://{user}:{password}@{host}/{database}"
+engine = sqlalchemy.create_engine(connection_string)
 
-    cursor = conn.cursor()
+def send_df_entrada(df):
 
-    str(df.columns).replace("'","")
+   df.to_sql("entrada_redzone", engine, index=False, if_exists="append")
 
-    for index, linha in df.iterrows():
-        
-        cursor.execute("Insert into entrada_saida(Data_entrada, Hora_entrada, Data_saida, Hora_saida, Redzone_number)values(?, ?, ?, ?, ?)",
-                       linha.Data_entrada, linha.Hora_entrada, linha.Data_saida, linha.Hora_saida, linha.Redzone_number)
-    cursor.commit()
-    cursor.close()
+def send_df_saida(df):
+
+   df.to_sql("saida_redzone", engine, index=False, if_exists="append")
+
+def consultar_redzone():
+    # Consulta os campos 'id' e 'nome' da tabela 'redzone'
+    query = "SELECT id, nome FROM redzone"
+    df_redzone = pd.read_sql_query(query, engine)
+    print(df_redzone)
+    return df_redzone
