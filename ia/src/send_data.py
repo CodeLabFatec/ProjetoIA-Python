@@ -21,5 +21,4 @@ def consultar_redzone():
     # Consulta os campos 'id' e 'nome' da tabela 'redzone'
     query = "SELECT id, nome FROM redzone"
     df_redzone = pd.read_sql_query(query, engine)
-    print(df_redzone)
     return df_redzone
