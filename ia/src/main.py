@@ -4,9 +4,10 @@ import cv2
 import pandas as pd
 import numpy as np
 
+from send_data import send_df_entrada, send_df_saida, consultar_redzone
 from tracker import *
-from create_df import create_dataframe
-from send_data import send_data
+from create_df import create_df_entrada
+from create_df import create_df_saida
 
 model=YOLO('yolov8s.pt')
 
@@ -15,13 +16,14 @@ area1 = None
 area2 = None
 
 
+
 def redzone(redzone_number):
     global cap, area1, area2 
 
     redzones = {
         305: {"video_path": "video-lado.mp4", "area1": [(436, 370), (413, 372), (627, 443), (650, 438)],
               "area2": [(389, 374), (360, 379), (576, 451), (607, 443)]},
-              
+               
         307: {"video_path": "video.mp4", "area1": [(436, 370), (413, 372), (627, 443), (650, 438)],
               "area2": [(389, 374), (360, 379), (576, 451), (607, 443)]}
     }
@@ -103,8 +105,8 @@ while True:
                 ppl_entering.add(id)
                 ppl_entering2.add(id)
                 timestamps[id] = {'enter': datetime.now()}
-                df = create_dataframe(timestamps, redzone_number)
-                send_data(df)
+                df = create_df_entrada(timestamps)
+                send_df_entrada(df)
                 entering.clear()
                 ppl_entering.clear()
                 timestamps.clear()
@@ -126,8 +128,8 @@ while True:
                 ppl_exiting.add(id)
                 ppl_exiting2.add(id)
                 timestamps[id] = {'exit': datetime.now()}
-                df = create_dataframe(timestamps, redzone_number)
-                send_data(df)
+                df = create_df_saida(timestamps)
+                send_df_saida
                 exiting.clear()
                 ppl_exiting.clear()
                 timestamps.clear()
