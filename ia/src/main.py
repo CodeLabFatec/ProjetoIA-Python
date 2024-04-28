@@ -51,11 +51,9 @@ cv2.setMouseCallback('RGB', RGB)
 
 df_redzone = consultar_redzone()
 redzone_dict = df_redzone.set_index('nome').T.to_dict('list')
-print(redzone_dict)
 
 nome_redzone = input("Qual redzone você gostaria de analisar? ")
 
-# Obtém o número da redzone com base no nome
 if nome_redzone in redzone_dict:
     redzone_number = redzone_dict[nome_redzone][0]
     redzone(redzone_number)
