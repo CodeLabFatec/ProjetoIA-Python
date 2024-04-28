@@ -21,10 +21,10 @@ def redzone(redzone_number):
     global cap, area1, area2 
 
     redzones = {
-        305: {"video_path": "video-lado.mp4", "area1": [(436, 370), (413, 372), (627, 443), (650, 438)],
+        redzone_dict['redzone 1'][0]: {"video_path": "video-lado.mp4", "area1": [(436, 370), (413, 372), (627, 443), (650, 438)],
               "area2": [(389, 374), (360, 379), (576, 451), (607, 443)]},
                
-        307: {"video_path": "video.mp4", "area1": [(436, 370), (413, 372), (627, 443), (650, 438)],
+        redzone_dict['redzone 2'][0]: {"video_path": "video.mp4", "area1": [(436, 370), (413, 372), (627, 443), (650, 438)],
               "area2": [(389, 374), (360, 379), (576, 451), (607, 443)]}
     }
     
@@ -49,7 +49,18 @@ def RGB(event, x, y, flags, param):
 cv2.namedWindow('RGB')
 cv2.setMouseCallback('RGB', RGB)
 
-redzone_number = redzone(307)
+df_redzone = consultar_redzone()
+redzone_dict = df_redzone.set_index('nome').T.to_dict('list')
+print(redzone_dict)
+
+nome_redzone = input("Qual redzone você gostaria de analisar? ")
+
+# Obtém o número da redzone com base no nome
+if nome_redzone in redzone_dict:
+    redzone_number = redzone_dict[nome_redzone][0]
+    redzone(redzone_number)
+else:
+    print(f"A redzone {nome_redzone} não está definida.")
 
 class_list = model.names
 
