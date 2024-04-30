@@ -17,28 +17,28 @@ area2 = None
 
 
 
-def redzone(redzone_number):
+def redzone(redzone_id):
     global cap, area1, area2 
 
     redzones = {
-        redzone_dict['redzone 1'][0]: {"video_path": "video-lado.mp4", "area1": [(436, 370), (413, 372), (627, 443), (650, 438)],
+        3: {"video_path": "video-lado.mp4", "area1": [(436, 370), (413, 372), (627, 443), (650, 438)],
               "area2": [(389, 374), (360, 379), (576, 451), (607, 443)]},
                
-        redzone_dict['redzone 2'][0]: {"video_path": "video.mp4", "area1": [(436, 370), (413, 372), (627, 443), (650, 438)],
+        5: {"video_path": "video.mp4", "area1": [(436, 370), (413, 372), (627, 443), (650, 438)],
               "area2": [(389, 374), (360, 379), (576, 451), (607, 443)]}
     }
-    
-    if redzone_number not in redzones:
-        print(f"A redzone {redzone_number} não está definida.")
+
+    if redzone_id not in redzones:
+        print(f"A redzone com o ID {redzone_id} não está definida.")
         return
 
-    redzone_data = redzones[redzone_number]
+    redzone_data = redzones[redzone_id]
     video_path = redzone_data["video_path"]
     area1 = redzone_data["area1"]
     area2 = redzone_data["area2"]
 
     cap = cv2.VideoCapture(video_path)
-    return redzone_number
+    return redzone_id
 
 def RGB(event, x, y, flags, param):
     if event == cv2.EVENT_MOUSEMOVE :  
@@ -50,15 +50,17 @@ cv2.namedWindow('RGB')
 cv2.setMouseCallback('RGB', RGB)
 
 df_redzone = consultar_redzone()
-redzone_dict = df_redzone.set_index('nome').T.to_dict('list')
+print("Redzones Disponíveis:")
+print(df_redzone)
 
-nome_redzone = input("Qual redzone você gostaria de analisar? ")
+redzone_dict = df_redzone.set_index('id')['nome'].T.to_dict()
 
-if nome_redzone in redzone_dict:
-    redzone_number = redzone_dict[nome_redzone][0]
-    redzone(redzone_number)
+redzone_id = int(input("Qual redzone você gostaria de analisar? "))
+
+if redzone_id in df_redzone['id'].values:
+    redzone(redzone_id)
 else:
-    print(f"A redzone {nome_redzone} não está definida.")
+    print(f"A redzone com o ID {redzone_id} não está definida.")
 
 class_list = model.names
 
@@ -114,7 +116,7 @@ while True:
                 ppl_entering.add(id)
                 ppl_entering2.add(id)
                 timestamps[id] = {'enter': datetime.now()}
-                df = create_df_entrada(timestamps)
+                df = create_df_entrada(timestamps, redzone_id)
                 send_df_entrada(df)
                 entering.clear()
                 ppl_entering.clear()
@@ -137,8 +139,8 @@ while True:
                 ppl_exiting.add(id)
                 ppl_exiting2.add(id)
                 timestamps[id] = {'exit': datetime.now()}
-                df = create_df_saida(timestamps)
-                send_df_saida
+                df = create_df_saida(timestamps, redzone_id)
+                send_df_saida(df)
                 exiting.clear()
                 ppl_exiting.clear()
                 timestamps.clear()
