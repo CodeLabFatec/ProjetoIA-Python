@@ -11,56 +11,41 @@ from create_df import create_df_saida
 
 model=YOLO('yolov8s.pt')
 
-cap = None
-area1 = None
-area2 = None
+selected_redzone_id = 0
+selected_redzone = None
+df_redzone = consultar_redzone()
 
+while selected_redzone_id == 0:        
+    print("Selecione uma redzone entre as disponíveis abaixo:")
+    id_nome_df = df_redzone.loc[:, ['id', 'nome']]
+    
+    for index, row in id_nome_df.iterrows():
+        print("ID:", row['id'], "Nome:", row['nome'])
 
+    redzone_id = int(input("Qual redzone você gostaria de analisar? "))
 
-def redzone(redzone_id):
-    global cap, area1, area2 
+    if redzone_id in df_redzone['id'].values:
+        redzone_data = df_redzone.loc[df_redzone['id'] == redzone_id]
 
-    redzones = {
-        3: {"video_path": "video-lado.mp4", "area1": [(436, 370), (413, 372), (627, 443), (650, 438)],
-              "area2": [(389, 374), (360, 379), (576, 451), (607, 443)]},
-               
-        5: {"video_path": "video.mp4", "area1": [(436, 370), (413, 372), (627, 443), (650, 438)],
-              "area2": [(389, 374), (360, 379), (576, 451), (607, 443)]}
-    }
-
-    if redzone_id not in redzones:
+        selected_redzone = redzone_data
+        selected_redzone_id = redzone_id
+    else:
         print(f"A redzone com o ID {redzone_id} não está definida.")
-        return
-
-    redzone_data = redzones[redzone_id]
-    video_path = redzone_data["video_path"]
-    area1 = redzone_data["area1"]
-    area2 = redzone_data["area2"]
-
-    cap = cv2.VideoCapture(video_path)
-    return redzone_id
 
 def RGB(event, x, y, flags, param):
     if event == cv2.EVENT_MOUSEMOVE :  
         colorsBGR = [x, y]
         print(colorsBGR)
         
+cv2.waitKey(1000)
 
 cv2.namedWindow('RGB')
 cv2.setMouseCallback('RGB', RGB)
 
-df_redzone = consultar_redzone()
-print("Redzones Disponíveis:")
-print(df_redzone)
+cap = cv2.VideoCapture(selected_redzone["video_path"].values[0])
 
-redzone_dict = df_redzone.set_index('id')['nome'].T.to_dict()
-
-redzone_id = int(input("Qual redzone você gostaria de analisar? "))
-
-if redzone_id in df_redzone['id'].values:
-    redzone(redzone_id)
-else:
-    print(f"A redzone com o ID {redzone_id} não está definida.")
+area1 = selected_redzone["area1"].values[0]
+area2 = selected_redzone["area2"].values[0]
 
 class_list = model.names
 
@@ -77,7 +62,15 @@ ppl_exiting = set()
 ppl_exiting2 = set()
 
 timestamps = {}
-while True:    
+
+# Obtenha a taxa de quadros do vídeo
+fps = 90
+
+# Calcule o tempo de espera em milissegundos
+wait_time = int(1000 / fps)
+
+
+while selected_redzone_id != 0: 
     ret,frame = cap.read()
     if not ret:
         break
@@ -116,13 +109,11 @@ while True:
                 ppl_entering.add(id)
                 ppl_entering2.add(id)
                 timestamps[id] = {'enter': datetime.now()}
-                df = create_df_entrada(timestamps, redzone_id)
+                df = create_df_entrada(timestamps, selected_redzone_id)
                 send_df_entrada(df)
                 entering.clear()
                 ppl_entering.clear()
                 timestamps.clear()
-
-      
         
         results_exiting = cv2.pointPolygonTest(np.array(area1, np.int32), (x4, y4), False)
         if results_exiting >= 0:
@@ -139,13 +130,11 @@ while True:
                 ppl_exiting.add(id)
                 ppl_exiting2.add(id)
                 timestamps[id] = {'exit': datetime.now()}
-                df = create_df_saida(timestamps, redzone_id)
+                df = create_df_saida(timestamps, selected_redzone_id)
                 send_df_saida(df)
                 exiting.clear()
                 ppl_exiting.clear()
                 timestamps.clear()
-
-
     
     cv2.polylines(frame,[np.array(area1,np.int32)],True,(255,0,0),2)
     cv2.polylines(frame,[np.array(area2,np.int32)],True,(255,0,0),2)
@@ -153,16 +142,13 @@ while True:
     entrou = (len(ppl_entering2))
     saiu = (len(ppl_exiting2))
     dentro = (len(ppl_entering2)) - (len(ppl_exiting2))
-    limite = 3
 
     cv2.putText(frame, str(entrou), (60, 80), cv2.FONT_HERSHEY_COMPLEX, 0.7, (0, 255, 0), 2)
     cv2.putText(frame, str(saiu), (60, 140), cv2.FONT_HERSHEY_COMPLEX, 0.7, (0, 0, 255), 2)
     cv2.putText(frame, str(dentro), (60, 200), cv2.FONT_HERSHEY_COMPLEX, 0.7, (255, 255, 255), 2)
-    if dentro > limite:
-        cv2.putText(frame, str("LIMITE ATINGIDO"), (40, 260), cv2.FONT_HERSHEY_COMPLEX, 0.7, (0, 0, 255), 2)
 
     cv2.imshow("RGB", frame)
-    if cv2.waitKey(4)&0xFF==27:
+    if cv2.waitKey(wait_time)&0xFF==27:
         break
 
 cap.release()
