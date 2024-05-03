@@ -1,5 +1,8 @@
 from models.dto.informacoes import informacoesDTO
 from entities.dados_ia import informacoesEntity
+from entities.entrada_redzone import EntradaRedZoneEntity
+from entities.saida_redzone import SaidaRedZoneEntity
+
 
 from app import db
 from datetime import *
@@ -24,22 +27,23 @@ class informacoesRepository:
 
         query_informacoes = db.session.query(
             informacoesEntity.id,
-            informacoesEntity.data_entrada,
-            informacoesEntity.data_saida,
-            informacoesEntity.hora_entrada,
-            informacoesEntity.hora_saida
+            informacoesEntity.data_cadastro,
+            informacoesEntity.status,
+            EntradaRedZoneEntity.data
+        ).join(
+            informacoesEntity, informacoesEntity.id == EntradaRedZoneEntity.id_redzone
         ).filter(
-            informacoesEntity.data_entrada >= data_sete_dias_atras
+            EntradaRedZoneEntity.data >= data_sete_dias_atras
         ).order_by(
-            informacoesEntity.data_entrada
+            EntradaRedZoneEntity.data
         )
 
         resultado_filtragem = [
-                {
-                    'data_entrada': value.data_entrada.strftime("%Y-%m-%d")
-                } for value in query_informacoes
-            ]
-
+        {
+            'data_entrada': value.data.strftime("%Y-%m-%d")
+        } for value in query_informacoes
+    ]
+        
         return resultado_filtragem
     
     def calcula_entrada_pessoas():
@@ -51,5 +55,31 @@ class informacoesRepository:
             if data['data_entrada'] not in contagem_pessoas['datas']:
                 contagem_pessoas['datas'][data['data_entrada']] = {'numero_pessoas' : 0, 'data_entrada' : data['data_entrada']}
             contagem_pessoas['datas'][data['data_entrada']]['numero_pessoas'] += 1
-
+    
+        print(contagem_pessoas['datas'].values())
         return list(contagem_pessoas['datas'].values())
+    
+
+    def get_redzone_entries(id):
+
+        query = db.session.query(
+            EntradaRedZoneEntity.data.label("data_entrada"),
+            SaidaRedZoneEntity.data.label("data_saida"),
+            informacoesEntity.id
+        ).join(
+            informacoesEntity, informacoesEntity.id == EntradaRedZoneEntity.id_redzone
+        ).outerjoin(
+            SaidaRedZoneEntity, SaidaRedZoneEntity.id_redzone == informacoesEntity.id
+        ).filter(
+            informacoesEntity.id == id
+        ).order_by(
+            EntradaRedZoneEntity.data
+        )
+
+        resultado_filtragem = [
+        {
+            'data_entrada': value.data_entrada.strftime("%Y-%m-%d"),
+            'data_saida': value.data_saida.strftime("%Y-%m-%d")
+        } for value in query
+    ]
+        return resultado_filtragem

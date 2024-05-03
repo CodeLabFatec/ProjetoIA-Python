@@ -10,21 +10,6 @@ from repository.dados_ia import informacoesRepository
 
 class ExportarRelatorio:
 
-    def traduzir_dia_da_semana(dia_da_semana):
-        # Dicionário de mapeamento dos dias da semana de inglês para português
-        dias_da_semana = {
-            "Monday": "Segunda-feira",
-            "Tuesday": "Terça-feira",
-            "Wednesday": "Quarta-feira",
-            "Thursday": "Quinta-feira",
-            "Friday": "Sexta-feira",
-            "Saturday": "Sábado",
-            "Sunday": "Domingo"
-        }
-
-        # Retorna a tradução do dia da semana se estiver no dicionário, caso contrário, retorna o próprio dia
-        return dias_da_semana.get(dia_da_semana, dia_da_semana)
-
 
     def export_relatorio_7_dias(template_filename):
 
@@ -43,12 +28,6 @@ class ExportarRelatorio:
             data_entrada_formatada = datetime.strptime(entry["data_entrada"], "%Y-%m-%d").strftime("%d/%m/%Y") if entry["data_entrada"] else ""
             sheet[f"C{i}"] = data_entrada_formatada
             sheet[f"D{i}"] = entry["numero_pessoas"]
-
-            if entry["data_entrada"]:
-                dia_da_semana = (data_inicial + timedelta(days=i-3)).strftime("%A")
-                sheet[f"B{i}"] = ExportarRelatorio.traduzir_dia_da_semana(dia_da_semana)
-            else:
-                sheet[f"B{i}"] = ""
 
         if len(data) < 7:
             for i in range(len(data) + 3, 10):
@@ -88,12 +67,6 @@ class ExportarRelatorio:
             sheet[f"C{i}"] = data_entrada_formatada
             sheet[f"D{i}"] = entry["numero_pessoas"]
 
-            if entry["data_entrada"]:
-                dia_da_semana = (data_inicial + timedelta(days=i-3)).strftime("%A")
-                sheet[f"B{i}"] = ExportarRelatorio.traduzir_dia_da_semana(dia_da_semana)
-            else:
-                sheet[f"B{i}"] = ""
-
         if len(data) < 14:
             for i in range(len(data) + 3, 17):
                 sheet[f"C{i}"] = ""
@@ -112,4 +85,47 @@ class ExportarRelatorio:
             mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
         response.headers['Content-Disposition'] = f'attachment; filename={file_name}'
+        return response
+    
+    def generate_redzone_log_excel(id):
+
+        wb = Workbook()
+        sheet = wb.active
+
+        sheet.append(["Data de Entrada", "Hora de Entrada", "Data de Saída", "Hora de Saída"])
+
+        redzone_entries = informacoesRepository.get_redzone_entries(id)
+
+        for entry in redzone_entries:
+            data_entrada = entry["data_entrada"]
+            if data_entrada:
+                data_entrada = datetime.strptime(data_entrada, "%Y-%m-%d").strftime("%Y-%m-%d")
+                hora_entrada = ""
+            else:
+                data_entrada = ""
+                hora_entrada = ""
+
+            data_saida = entry["data_saida"]
+            if data_saida:
+                data_saida = datetime.strptime(data_saida, "%Y-%m-%d").strftime("%Y-%m-%d")
+                hora_saida = ""
+            else:
+                data_saida = ""
+                hora_saida = ""
+
+            sheet.append([data_entrada, hora_entrada, data_saida, hora_saida])
+
+        output = io.BytesIO()
+        wb.save(output)
+        output.seek(0)
+
+        file_name = f"Redzone_Log_{id}.xlsx"
+        response = send_file(
+            output,
+            as_attachment=True,
+            download_name=file_name,
+            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+        response.headers['Content-Disposition'] = f'attachment; filename={file_name}'
+        
         return response
