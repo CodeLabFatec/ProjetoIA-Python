@@ -83,3 +83,45 @@ class informacoesRepository:
         } for value in query
     ]
         return resultado_filtragem
+    
+
+    def get_informacoes_for_export_por_id(id):
+        data_atual = datetime.now()
+        data_sete_dias_atras = data_atual - timedelta(days=7)
+
+        query_informacoes = db.session.query(
+            informacoesEntity.id,
+            informacoesEntity.status,
+            EntradaRedZoneEntity.data
+        ).join(
+            EntradaRedZoneEntity, informacoesEntity.id == EntradaRedZoneEntity.id_redzone
+        ).filter(
+            EntradaRedZoneEntity.data >= data_sete_dias_atras,
+            informacoesEntity.status == True,
+            EntradaRedZoneEntity.id_redzone == id
+        ).order_by(
+            EntradaRedZoneEntity.data
+        )
+
+        resultado_filtragem = [
+            {
+                'data_entrada': value.data.strftime("%Y-%m-%d")
+            } for value in query_informacoes
+        ]
+
+        return resultado_filtragem
+    
+    def calcula_entrada_pessoas_por_id(id):
+        informacoes = informacoesRepository.get_informacoes_for_export_por_id(id)
+        contagem_pessoas = {'datas':{}}
+
+        for info in informacoes:
+            if info['data_entrada'] not in contagem_pessoas['datas']:
+                contagem_pessoas['datas'][info['data_entrada']] = {'numero_pessoas' : 0, 'data_entrada' : info['data_entrada']}
+            contagem_pessoas['datas'][info['data_entrada']]['numero_pessoas'] += 1
+
+        # Convertendo as strings de data para objetos datetime
+        for entry in contagem_pessoas['datas'].values():
+            entry['data_entrada'] = datetime.strptime(entry['data_entrada'], "%Y-%m-%d")
+
+        return list(contagem_pessoas['datas'].values())

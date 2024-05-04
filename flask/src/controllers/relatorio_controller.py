@@ -19,3 +19,6 @@ class RelatorioController:
 
     def download_redzone_log_excel(id):
         return ExportarRelatorio.generate_redzone_log_excel(id)
+    
+    def download_relatorio_7_dias_por_id(id):
+        return ExportarRelatorio.export_relatorio_por_id('Template7dias.xlsx', id)

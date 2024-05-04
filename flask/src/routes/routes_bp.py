@@ -16,6 +16,8 @@ relatorio_bp.route('/report-14-days',
                methods=['GET'])(RelatorioController.download_relatorio_14_dias)
 relatorio_bp.route('/report-log/<id>',
                methods=['GET'])(RelatorioController.download_redzone_log_excel)
+relatorio_bp.route('/report-7-days/<id>',
+               methods=['GET'])(RelatorioController.download_relatorio_7_dias_por_id)
 
 
 def add_custom_headers(response):
