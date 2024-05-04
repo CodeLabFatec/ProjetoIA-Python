@@ -27,13 +27,13 @@ class informacoesRepository:
 
         query_informacoes = db.session.query(
             informacoesEntity.id,
-            informacoesEntity.data_cadastro,
             informacoesEntity.status,
             EntradaRedZoneEntity.data
         ).join(
-            informacoesEntity, informacoesEntity.id == EntradaRedZoneEntity.id_redzone
+            EntradaRedZoneEntity, informacoesEntity.id == EntradaRedZoneEntity.id_redzone
         ).filter(
-            EntradaRedZoneEntity.data >= data_sete_dias_atras
+            EntradaRedZoneEntity.data >= data_sete_dias_atras,
+            informacoesEntity.status == True
         ).order_by(
             EntradaRedZoneEntity.data
         )
