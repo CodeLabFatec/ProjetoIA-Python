@@ -17,6 +17,9 @@ class RelatorioController:
     def download_relatorio_14_dias():
         return ExportarRelatorio.export_relatorio_14_dias('Template14dias.xlsx')
 
+    def download_redzone_log_excel_all():
+        return ExportarRelatorio.generate_redzone_log_excel_all()
+
     def download_redzone_log_excel(id):
         return ExportarRelatorio.generate_redzone_log_excel(id)
     

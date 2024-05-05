@@ -92,28 +92,28 @@ class ExportarRelatorio:
         wb = Workbook()
         sheet = wb.active
 
-        sheet.append(["Data de Entrada", "Hora de Entrada", "Data de Saída", "Hora de Saída"])
+        sheet.append(["Data de Entrada", "Hora de Entrada", "Data de Saída", "Hora de Saída", "Redzone"])
 
         redzone_entries = informacoesRepository.get_redzone_entries(id)
 
         for entry in redzone_entries:
-            data_entrada = entry["data_entrada"]
-            if data_entrada:
-                data_entrada = datetime.strptime(data_entrada, "%Y-%m-%d").strftime("%Y-%m-%d")
-                hora_entrada = ""
-            else:
-                data_entrada = ""
-                hora_entrada = ""
+            nome_redzone = entry["nome"]
+            data_entrada_datetime = entry["data_entrada"]
+            data_saida_datetime = entry["data_saida"]
+            data_entrada = ""
+            hora_entrada = ""
+            data_saida = ""
+            hora_saida = ""
 
-            data_saida = entry["data_saida"]
-            if data_saida:
-                data_saida = datetime.strptime(data_saida, "%Y-%m-%d").strftime("%Y-%m-%d")
-                hora_saida = ""
-            else:
-                data_saida = ""
-                hora_saida = ""
+            if data_entrada_datetime:
+                data_entrada = data_entrada_datetime.strftime("%d/%m/%Y")
+                hora_entrada = data_entrada_datetime.strftime("%H:%M")
 
-            sheet.append([data_entrada, hora_entrada, data_saida, hora_saida])
+            if data_saida_datetime:
+                data_saida = data_saida_datetime.strftime("%d/%m/%Y")
+                hora_saida = data_saida_datetime.strftime("%H:%M")
+
+            sheet.append([data_entrada, hora_entrada, data_saida, hora_saida, nome_redzone])
 
         output = io.BytesIO()
         wb.save(output)
@@ -130,6 +130,49 @@ class ExportarRelatorio:
         
         return response
 
+    def generate_redzone_log_excel_all(): 
+
+        wb = Workbook()
+        sheet = wb.active
+
+        sheet.append(["Data de Entrada", "Hora de Entrada", "Data de Saída", "Hora de Saída", "Redzone"])
+
+        redzone_entries = informacoesRepository.get_all_redzone_entries()
+
+        for entry in redzone_entries:
+            nome_redzone = entry["nome"]
+            data_entrada_datetime = entry["data_entrada"]
+            data_saida_datetime = entry["data_saida"]
+            data_entrada = ""
+            hora_entrada = ""
+            data_saida = ""
+            hora_saida = ""
+
+            if data_entrada_datetime:
+                data_entrada = data_entrada_datetime.strftime("%d/%m/%Y")
+                hora_entrada = data_entrada_datetime.strftime("%H:%M")
+
+            if data_saida_datetime:
+                data_saida = data_saida_datetime.strftime("%d/%m/%Y")
+                hora_saida = data_saida_datetime.strftime("%H:%M")
+
+            sheet.append([data_entrada, hora_entrada, data_saida, hora_saida, nome_redzone])
+
+        output = io.BytesIO()
+        wb.save(output)
+        output.seek(0)
+
+        file_name = f"Redzone_Log.xlsx"
+        response = send_file(
+            output,
+            as_attachment=True,
+            download_name=file_name,
+            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+        response.headers['Content-Disposition'] = f'attachment; filename={file_name}'
+        
+        return response
+    
     def export_relatorio_por_id(template_filename, id):
         current_dir = os.path.dirname(os.path.abspath(__file__))
         template_path = os.path.abspath(os.path.join(current_dir, '..', '..', '..', 'assets', template_filename))

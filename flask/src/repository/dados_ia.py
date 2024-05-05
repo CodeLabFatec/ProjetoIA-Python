@@ -65,6 +65,7 @@ class informacoesRepository:
         query = db.session.query(
             EntradaRedZoneEntity.data.label("data_entrada"),
             SaidaRedZoneEntity.data.label("data_saida"),
+            informacoesEntity.nome.label("nome"),
             informacoesEntity.id
         ).join(
             informacoesEntity, informacoesEntity.id == EntradaRedZoneEntity.id_redzone
@@ -78,12 +79,34 @@ class informacoesRepository:
 
         resultado_filtragem = [
         {
-            'data_entrada': value.data_entrada.strftime("%Y-%m-%d"),
-            'data_saida': value.data_saida.strftime("%Y-%m-%d")
+            'data_entrada': value.data_entrada,
+            'data_saida': value.data_saida,
+            'nome': value.nome
         } for value in query
     ]
         return resultado_filtragem
     
+    def get_all_redzone_entries():
+        query = db.session.query(
+            EntradaRedZoneEntity.data.label("data_entrada"),
+            SaidaRedZoneEntity.data.label("data_saida"),
+            informacoesEntity.nome.label('nome')
+        ).join(
+            informacoesEntity, informacoesEntity.id == EntradaRedZoneEntity.id_redzone
+        ).outerjoin(
+            SaidaRedZoneEntity, SaidaRedZoneEntity.id_redzone == informacoesEntity.id
+        ).order_by(
+            EntradaRedZoneEntity.data
+        )
+
+        resultado_filtragem = [
+        {
+            'data_entrada': value.data_entrada,
+            'data_saida': value.data_saida,
+            'nome': value.nome
+        } for value in query
+    ]
+        return resultado_filtragem 
 
     def get_informacoes_for_export_por_id(id):
         data_atual = datetime.now()
