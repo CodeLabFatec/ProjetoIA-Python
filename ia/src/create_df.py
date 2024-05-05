@@ -1,33 +1,39 @@
 import pandas as pd
 
-def create_dataframe(timestamps):
+def create_df_entrada(timestamps, redzone_id):
+    data = []
+    id_redzone = []
+
+    for id, times in timestamps.items():
+        if 'enter' in times:
+            data.append(times['enter'])
+            id_redzone.append(redzone_id)
+        else:
+            data.append(None)
+            id_redzone.append(None)
+
+    df_entrada = pd.DataFrame({
+        'data': data,
+        'id_redzone': id_redzone
+    })
+    return df_entrada
+
+def create_df_saida(timestamps, redzone_id):
     ids = []
-    Data_entrada = []
-    Hora_entrada = []
-    Data_saida = []
-    Hora_saida = []
+    data = []
+    id_redzone = []
 
     for id, times in timestamps.items():
         ids.append(id)
-        if 'enter' in times:
-            Data_entrada.append(times['enter'].date())
-            Hora_entrada.append(times['enter'].time())
-        else:
-            Data_entrada.append(None)
-            Hora_entrada.append(None)
         if 'exit' in times:
-            Data_saida.append(times['exit'].date())
-            Hora_saida.append(times['exit'].time())
+            data.append(times['exit'])
+            id_redzone.append(redzone_id)
         else:
-            Data_saida.append(None)
-            Hora_saida.append(None)
+            data.append(None)
+            id_redzone.append(None)
 
-    df = pd.DataFrame({
-        'ID': ids,
-        'Data_entrada': Data_entrada,
-        'Hora_entrada': Hora_entrada,
-        'Data_saida': Data_saida,
-        'Hora_saida': Hora_saida
+    df_saida = pd.DataFrame({
+        'data': data,
+        'id_redzone': id_redzone
     })
-
-    return df
+    return df_saida

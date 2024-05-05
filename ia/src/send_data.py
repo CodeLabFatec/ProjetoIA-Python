@@ -1,16 +1,40 @@
-import pyodbc 
+import sqlalchemy 
+import pandas as pd
 
-def send_data(df):
+user = 'root'
+password = 'thales'
+host = 'localhost'
+database = 'api_6sem'
 
-    conn = pyodbc.connect('DRIVER={MySQL ODBC 8.3 Unicode Driver}; Database=api_6sem; UID=root; PWD=fatec')
+connection_string = f"mysql+mysqlconnector://{user}:{password}@{host}/{database}"
+engine = sqlalchemy.create_engine(connection_string)
 
-    cursor = conn.cursor()
+def send_df_entrada(df):
 
-    str(df.columns).replace("'","")
+   df.to_sql("entrada_redzone", engine, index=False, if_exists="append")
 
-    for index, linha in df.iterrows():
-        
-        cursor.execute("Insert into registros(Data_entrada, Hora_entrada, Data_saida, Hora_saida)values(?, ?, ?, ?)",
-                       linha.Data_entrada, linha.Hora_entrada, linha.Data_saida, linha.Hora_saida)
-    cursor.commit()
-    cursor.close()
+def send_df_saida(df):
+
+   df.to_sql("saida_redzone", engine, index=False, if_exists="append")
+
+def consultar_redzone():
+    query = "SELECT id, nome FROM redzone"
+    df_redzone = pd.read_sql_query(query, engine)
+
+    df_redzone['video_path'] = df_redzone['id'].apply(lambda x: getVideo(x))
+    df_redzone['area1'] = df_redzone['id'].apply(lambda x: getArea(x))
+    df_redzone['area2'] = df_redzone['id'].apply(lambda x: getArea2(x))
+
+    return df_redzone
+
+def getVideo(x):
+   if x % 2 == 0:
+      return "C:/Users/Thales Kerber/OneDrive/Área de Trabalho/Projeto Integrador 6º/ProjetoIA/ProjetoIA-Python/ia/src/video-lado.mp4"
+   else:
+      return "C:/Users/Thales Kerber/OneDrive/Área de Trabalho/Projeto Integrador 6º/ProjetoIA/ProjetoIA-Python/ia/src/video.mp4"
+   
+def getArea(x):
+   return [(436, 370), (413, 372), (627, 443), (650, 438)]
+
+def getArea2(x):
+   return [(389, 374), (360, 379), (576, 451), (607, 443)]

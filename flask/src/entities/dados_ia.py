@@ -3,11 +3,11 @@ from datetime import datetime, date, time
 
 class informacoesEntity(db.Model):
 
-    __tablename__ = 'registros'
+    __tablename__ = 'redzone'
     __table_args__ = {'schema':'api_6sem'}
 
     id = db.Column(db.BigInteger, primary_key=True)
-    data_entrada = db.Column(db.Date)
-    hora_entrada = db.Column(db.Time)
-    data_saida = db.Column(db.Date)
-    hora_saida = db.Column(db.Time)
+    nome = db.Column(db.String(45), nullable=False)
+    descricao = db.Column(db.String(1000), nullable=True)
+    data_cadastro = db.Column(db.DateTime, default=datetime.now())
+    status = db.Column(db.Boolean)

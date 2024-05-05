@@ -3,7 +3,7 @@ from pydantic import BaseModel, BaseSettings
 
 class DevConfig(BaseSettings):
     env: Literal['dev']
-    MYSQL_URL: str = 'mysql+pymysql://root:asterisk@localhost'
+    MYSQL_URL: str = 'mysql+pymysql://root:root@localhost'
 
 class TestConfig(BaseSettings):
     pass
