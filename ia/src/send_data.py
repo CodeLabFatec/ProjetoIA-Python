@@ -18,7 +18,7 @@ def send_df_saida(df):
    df.to_sql("saida_redzone", engine, index=False, if_exists="append")
 
 def consultar_redzone():
-    query = "SELECT id, nome FROM redzone"
+    query = "SELECT id, nome FROM redzone where status = true"
     df_redzone = pd.read_sql_query(query, engine)
 
     df_redzone['video_path'] = df_redzone['id'].apply(lambda x: getVideo(x))

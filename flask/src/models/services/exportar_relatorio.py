@@ -92,28 +92,22 @@ class ExportarRelatorio:
         wb = Workbook()
         sheet = wb.active
 
-        sheet.append(["Data de Entrada", "Hora de Entrada", "Data de Saída", "Hora de Saída", "Redzone"])
+        sheet.append(["Data", "Hora", "Tipo", "Redzone"])
 
         redzone_entries = informacoesRepository.get_redzone_entries(id)
 
         for entry in redzone_entries:
+            data_datetime = entry["data"]
+            tipo = entry["tipo"]
             nome_redzone = entry["nome"]
-            data_entrada_datetime = entry["data_entrada"]
-            data_saida_datetime = entry["data_saida"]
-            data_entrada = ""
-            hora_entrada = ""
-            data_saida = ""
-            hora_saida = ""
+            data = ""
+            hora = ""
 
-            if data_entrada_datetime:
-                data_entrada = data_entrada_datetime.strftime("%d/%m/%Y")
-                hora_entrada = data_entrada_datetime.strftime("%H:%M")
+            if data_datetime:
+                data = data_datetime.strftime("%d/%m/%Y")
+                hora = data_datetime.strftime("%H:%M")
 
-            if data_saida_datetime:
-                data_saida = data_saida_datetime.strftime("%d/%m/%Y")
-                hora_saida = data_saida_datetime.strftime("%H:%M")
-
-            sheet.append([data_entrada, hora_entrada, data_saida, hora_saida, nome_redzone])
+            sheet.append([data, hora, tipo, nome_redzone])
 
         output = io.BytesIO()
         wb.save(output)
@@ -135,28 +129,22 @@ class ExportarRelatorio:
         wb = Workbook()
         sheet = wb.active
 
-        sheet.append(["Data de Entrada", "Hora de Entrada", "Data de Saída", "Hora de Saída", "Redzone"])
+        sheet.append(["Data", "Hora", "Tipo", "Redzone"])
 
         redzone_entries = informacoesRepository.get_all_redzone_entries()
 
         for entry in redzone_entries:
+            data_datetime = entry["data"]
+            tipo = entry["tipo"]
             nome_redzone = entry["nome"]
-            data_entrada_datetime = entry["data_entrada"]
-            data_saida_datetime = entry["data_saida"]
-            data_entrada = ""
-            hora_entrada = ""
-            data_saida = ""
-            hora_saida = ""
+            data = ""
+            hora = ""
 
-            if data_entrada_datetime:
-                data_entrada = data_entrada_datetime.strftime("%d/%m/%Y")
-                hora_entrada = data_entrada_datetime.strftime("%H:%M")
+            if data_datetime:
+                data = data_datetime.strftime("%d/%m/%Y")
+                hora = data_datetime.strftime("%H:%M")
 
-            if data_saida_datetime:
-                data_saida = data_saida_datetime.strftime("%d/%m/%Y")
-                hora_saida = data_saida_datetime.strftime("%H:%M")
-
-            sheet.append([data_entrada, hora_entrada, data_saida, hora_saida, nome_redzone])
+            sheet.append([data, hora, tipo, nome_redzone])
 
         output = io.BytesIO()
         wb.save(output)
