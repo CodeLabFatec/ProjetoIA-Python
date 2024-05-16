@@ -1,0 +1,9 @@
+test: C:/Users/thale/Desktop/api/ProjetoIA-Python/ia/data/dataset/test/images
+train: C:/Users/thale/Desktop/api/ProjetoIA-Python/ia/data/dataset/train/images
+val: C:/Users/thale/Desktop/api/ProjetoIA-Python/ia/data/dataset//valid/images
+
+nc: 1
+
+names:
+- person
+
