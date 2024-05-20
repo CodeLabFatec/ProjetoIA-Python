@@ -2,7 +2,7 @@ import sqlalchemy
 import pandas as pd
 
 user = 'root'
-password = 'thales'
+password = 'fatec'
 host = 'localhost'
 database = 'api_6sem'
 
@@ -32,16 +32,16 @@ def getVideo(x):
    # quando o ID da redzone selecionada for PAR o vídeo novo será executado, quando for IMPAR o vídeo
    # novo sem entrar será executado.
    if x % 2 == 0:
-      return "C:/Users/Thales Kerber/OneDrive/Área de Trabalho/Projeto Integrador 6º/ProjetoIA/ProjetoIA-Python/ia/src/video-novo.mp4"
+      return "C:/Workspace/ProjetoIA-Python/ia/src/video-novo.mp4"
    else:
-      return "C:/Users/Thales Kerber/OneDrive/Área de Trabalho/Projeto Integrador 6º/ProjetoIA/ProjetoIA-Python/ia/src/video-sementrar.mp4"
+      return "C:/Workspace/ProjetoIA-Python/ia/src/video-sementrar.mp4"
    
 def getArea(x):
-   return [(360, 371), (362, 360), (431, 339), (447, 342)] # vídeo novo SEM entrada (video-sementrar.mp4)
+    return [(362, 385), (337, 374), (452, 339), (495, 348)] # vídeo novo SEM entrada (video-sementrar.mp4)
    # return [(463, 359), (482, 348), (553, 396), (554, 413)] vídeo novo com a entrada (video-novo.mp4)
    # return [(436, 370), (413, 372), (627, 443), (650, 438)] vídeos antigos (video.mp4 e video-lado.mp4)
 
 def getArea2(x):
-   return [(360, 380), (360, 390), (458, 352), (443, 350)] # vídeo novo SEM entrada (video-sementrar.mp4)
+    return [(375, 399), (421, 421), (525, 370), (491, 356)] # vídeo novo SEM entrada (video-sementrar.mp4)
    # return [(425, 367), (401, 379), (558, 446), (547, 425)] vídeo novo com a entrada (video-novo.mp4)
    # return [(389, 374), (360, 379), (576, 451), (607, 443)] vídeos antigos (video.mp4 e video-lado.mp4)
