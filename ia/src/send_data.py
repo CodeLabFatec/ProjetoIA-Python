@@ -2,7 +2,7 @@ import sqlalchemy
 import pandas as pd
 
 user = 'root'
-password = 'fatec'
+password = 'thales'
 host = 'localhost'
 database = 'api_6sem'
 
@@ -32,9 +32,9 @@ def getVideo(x):
    # quando o ID da redzone selecionada for PAR o vídeo novo será executado, quando for IMPAR o vídeo
    # novo sem entrar será executado.
    if x % 2 == 0:
-      return "C:/Workspace/ProjetoIA-Python/ia/src/video-novo.mp4"
+      return "C:/Users/Thales Kerber/OneDrive/Área de Trabalho/Projeto Integrador 6º/ProjetoIA/ProjetoIA-Python/ia/src/video-novo.mp4"
    else:
-      return "C:/Workspace/ProjetoIA-Python/ia/src/video-sementrar.mp4"
+      return "C:/Users/Thales Kerber/OneDrive/Área de Trabalho/Projeto Integrador 6º/ProjetoIA/ProjetoIA-Python/ia/src/video-sementrar.mp4"
    
 def getArea(x):
     return [(362, 385), (337, 374), (452, 339), (495, 348)] # vídeo novo SEM entrada (video-sementrar.mp4)

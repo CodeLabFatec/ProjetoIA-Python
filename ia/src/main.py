@@ -11,7 +11,7 @@ from create_df import create_df_saida
 
 # Para utilizar o modelo do yolo, basta deixar vazio o parâmetro abaixo, para deixar o nosso modelo treinado,
 # copie o path (caminho) do arquivo 'best.pt' que está dentro de /ia/src desse repositório.
-model=YOLO('C:/Workspace/ProjetoIA-Python/ia/src/best.pt')
+model=YOLO('C:/Users/Thales Kerber/OneDrive/Área de Trabalho/Projeto Integrador 6º/ProjetoIA/ProjetoIA-Python/ia/src/best.pt')
 
 selected_redzone_id = 0
 selected_redzone = None
@@ -150,7 +150,7 @@ while selected_redzone_id != 0:
     cv2.putText(frame, str(dentro), (60, 200), cv2.FONT_HERSHEY_COMPLEX, 0.7, (255, 255, 255), 2)
 
     cv2.imshow("RGB", frame)
-    if cv2.waitKey(0)&0xFF==27:
+    if cv2.waitKey(wait_time)&0xFF==27:
         break
 
 cap.release()
