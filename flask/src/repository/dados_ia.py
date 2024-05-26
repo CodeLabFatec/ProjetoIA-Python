@@ -5,6 +5,7 @@ from entities.saida_redzone import SaidaRedZoneEntity
 
 
 from app import db
+from sqlalchemy import desc
 from datetime import *
 
 class informacoesRepository:
@@ -61,51 +62,65 @@ class informacoesRepository:
     
 
     def get_redzone_entries(id):
-
-        query = db.session.query(
-            EntradaRedZoneEntity.data.label("data_entrada"),
-            SaidaRedZoneEntity.data.label("data_saida"),
-            informacoesEntity.nome.label("nome"),
-            informacoesEntity.id
-        ).join(
-            informacoesEntity, informacoesEntity.id == EntradaRedZoneEntity.id_redzone
-        ).outerjoin(
-            SaidaRedZoneEntity, SaidaRedZoneEntity.id_redzone == informacoesEntity.id
-        ).filter(
-            informacoesEntity.id == id
-        ).order_by(
-            EntradaRedZoneEntity.data
-        )
-
-        resultado_filtragem = [
-        {
-            'data_entrada': value.data_entrada,
-            'data_saida': value.data_saida,
-            'nome': value.nome
-        } for value in query
-    ]
-        return resultado_filtragem
-    
-    def get_all_redzone_entries():
-        query = db.session.query(
-            EntradaRedZoneEntity.data.label("data_entrada"),
-            SaidaRedZoneEntity.data.label("data_saida"),
+        query_entrada = db.session.query(
+            EntradaRedZoneEntity.data.label("data"),
+            db.literal('entrada').label("tipo"),
             informacoesEntity.nome.label('nome')
         ).join(
             informacoesEntity, informacoesEntity.id == EntradaRedZoneEntity.id_redzone
-        ).outerjoin(
-            SaidaRedZoneEntity, SaidaRedZoneEntity.id_redzone == informacoesEntity.id
-        ).order_by(
-            EntradaRedZoneEntity.data
+        ).filter(
+            informacoesEntity.id == id
         )
 
+        query_saida = db.session.query(
+            SaidaRedZoneEntity.data.label("data"),
+            db.literal('saida').label("tipo"),
+            informacoesEntity.nome.label('nome')
+        ).join(
+            informacoesEntity, informacoesEntity.id == SaidaRedZoneEntity.id_redzone
+        ).filter(
+            informacoesEntity.id == id
+        )
+
+        query = query_entrada.union_all(query_saida).order_by(desc("data"))
+
         resultado_filtragem = [
-        {
-            'data_entrada': value.data_entrada,
-            'data_saida': value.data_saida,
-            'nome': value.nome
-        } for value in query
-    ]
+            {
+                'data': value.data,
+                'tipo': value.tipo,
+                'nome': value.nome
+            } for value in query
+        ]
+
+        return resultado_filtragem 
+    
+    def get_all_redzone_entries():
+        query_entrada = db.session.query(
+            EntradaRedZoneEntity.data.label("data"),
+            db.literal('entrada').label("tipo"),
+            informacoesEntity.nome.label('nome')
+        ).join(
+            informacoesEntity, informacoesEntity.id == EntradaRedZoneEntity.id_redzone
+        )
+
+        query_saida = db.session.query(
+            SaidaRedZoneEntity.data.label("data"),
+            db.literal('saida').label("tipo"),
+            informacoesEntity.nome.label('nome')
+        ).join(
+            informacoesEntity, informacoesEntity.id == SaidaRedZoneEntity.id_redzone
+        )
+
+        query = query_entrada.union_all(query_saida).order_by(desc("data"))
+
+        resultado_filtragem = [
+            {
+                'data': value.data,
+                'tipo': value.tipo,
+                'nome': value.nome
+            } for value in query
+        ]
+
         return resultado_filtragem 
 
     def get_informacoes_for_export_por_id(id):

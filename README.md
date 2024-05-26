@@ -25,6 +25,39 @@ As branches e commits desse projeto seguem o seguinte padrão estabelecido pelo 
 
 <br>
 
+> Instalação
+
+Para instalar e executar o projeto siga as instruções abaixo:
+
+1. Clone o repositório:
+    ```bash
+    git clone https://www.github.com/CodeLabFatec/ProjetoIA-Python.git
+    ```
+
+2. Entre no diretório do projeto:
+    ```bash
+    cd ProjetoIA-Vue
+    ```
+
+3. Para rodar a aplicação Flask digite abaixo:
+    ```bash
+    cd flask/src
+
+    python3 -m venv env
+    pip install -r requirements.txt
+
+    startdev.bat
+    ```
+
+3. Para rodar a aplicação IA digite abaixo:
+    ```bash
+    cd ia/src
+
+    python main.py
+    ```
+
+<br>
+
 <span id="tecnologias">
 
 ## 🛠️ Tecnologias
