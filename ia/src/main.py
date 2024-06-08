@@ -9,9 +9,7 @@ from tracker import *
 from create_df import create_df_entrada
 from create_df import create_df_saida
 
-# Para utilizar o modelo do yolo, basta deixar vazio o parâmetro abaixo, para deixar o nosso modelo treinado,
-# copie o path (caminho) do arquivo 'best.pt' que está dentro de /ia/src desse repositório.
-model=YOLO('C:/Users/Thales Kerber/OneDrive/Área de Trabalho/Projeto Integrador 6º/ProjetoIA/ProjetoIA-Python/ia/src/best.pt')
+model=YOLO('best.pt')
 
 selected_redzone_id = 0
 selected_redzone = None
