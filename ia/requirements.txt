@@ -4,3 +4,4 @@ opencv_python_headless
 pandas
 pyodbc
 ultralytics
+python-dotenv

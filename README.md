@@ -27,8 +27,6 @@ As branches e commits desse projeto seguem o seguinte padrão estabelecido pelo 
 
 > Instalação
 
-Para instalar e executar o projeto siga as instruções abaixo:
-
 1. Clone o repositório:
     ```bash
     git clone https://www.github.com/CodeLabFatec/ProjetoIA-Python.git
@@ -36,24 +34,69 @@ Para instalar e executar o projeto siga as instruções abaixo:
 
 2. Entre no diretório do projeto:
     ```bash
-    cd ProjetoIA-Vue
+    cd ProjetoIA-Python
     ```
 
-3. Para rodar a aplicação Flask digite abaixo:
+### Aplicação IA
+
+
+Para instalar e executar o projeto siga as instruções abaixo:
+
+
+1. Para instalar as dependências:
+    ```bash
+    cd ia
+
+    pip install -r requirements.txt
+    ```
+2. Crie uma cópia do arquivo `.env.example` chamado `.env`:
+   ```bash
+   cd src
+
+   cp .env.example .env
+   ```
+
+3. Abra o arquivo `.env` e insira as informações de conexão com o banco de dados:
+    ```plaintext
+    DB_USER=
+    DB_PASSWORD=
+    DB_HOST=
+    DB_DATABASE=
+    ```
+
+4. Para rodar a aplicação IA digite abaixo:
+    ```bash
+    python main.py
+    ```
+
+### Aplicação Flask
+
+Para instalar e executar o projeto siga as instruções abaixo:
+
+1. Para instalar as dependências:
     ```bash
     cd flask/src
 
-    python3 -m venv env
     pip install -r requirements.txt
-
-    startdev.bat
+    
+    python3 -m venv env
     ```
 
-3. Para rodar a aplicação IA digite abaixo:
-    ```bash
-    cd ia/src
+2. Crie uma cópia do arquivo `.env.example` chamado `.env`:
+   ```bash
+   cp .env.example .env
+   ```
 
-    python main.py
+3. Abra o arquivo `.env` e insira as informações de conexão com o banco de dados:
+    ```plaintext
+    FLASK_ENV=
+    LOGGING_LEVEL=
+    DATABASE_URL=
+    ```
+
+4. Para rodar a aplicação Flask digite abaixo:
+    ```bash
+    startdev.bat
     ```
 
 <br>
